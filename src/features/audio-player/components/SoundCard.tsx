@@ -1,14 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import PlayingIndicator from "./PlayingIndicator";
+import { Sound } from "../../../shared/types/sound";
 
 interface SoundCardProps {
     isActive?: boolean;
-    title: string;
+    sound: Sound;
     onClick?: () => void;
 }
 
-const SoundCard = ({ isActive, title, onClick }: SoundCardProps) => {
+const SoundCard = ({ isActive, sound, onClick }: SoundCardProps) => {
     const [isActiveState, setActive] = useState(isActive);
     const cardTheme = isActiveState ? "bg-zinc-100 text-black" : undefined;
 
@@ -22,7 +23,7 @@ const SoundCard = ({ isActive, title, onClick }: SoundCardProps) => {
     return (
         <Card className={`max-h-36 min-h-36 h-36 w-36 flex font-semibold flex-col items-start justify-end p-4 cursor-pointer transition-colors duration-300 ${cardTheme}`} onClick={handleClick}>
             {isActiveState && <PlayingIndicator playing={isPlaying} />}
-            <h3>{title}</h3>
+            <h3>{sound.title}</h3>
         </Card>
     );
 };
