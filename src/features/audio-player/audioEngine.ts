@@ -18,7 +18,7 @@ const layerVolumes: Record<Layer, number> = {
     master: 0.5,
     music: 0.5,
     whitenoise: 0.5,
-    binauralbeats: 0.5,
+    binauralbeats: 0.1,
 };
 const audioSources: Record<SoundCategory, AudioBufferSourceNode | null> = {
     [SoundCategory.Music]: null,
@@ -57,6 +57,10 @@ const ensureInitialized = () => {
         whitenoise: createCategoryGain(SoundCategory.WhiteNoise),
         binauralbeats: createCategoryGain(SoundCategory.BinauralBeats),
     };
+
+    gains[SoundCategory.Music].gain.value = layerVolumes.music;
+    gains[SoundCategory.WhiteNoise].gain.value = layerVolumes.whitenoise;
+    gains[SoundCategory.BinauralBeats].gain.value = layerVolumes.binauralbeats;
 
     return audioContext;
 };
