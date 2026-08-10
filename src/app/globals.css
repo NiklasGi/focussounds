@@ -121,18 +121,25 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
 }
 
- @theme {
-
---animate-eq: eq 0.7s ease-in-out infinite;
-
-@keyframes eq { 0%,100% { transform: scaleY(0.22); } 50% { transform: scaleY(1); } }
-
+@theme {
+  --animate-eq: eq 0.7s ease-in-out infinite;
+  @keyframes eq {
+    0%,
+    100% {
+      transform: scaleY(0.22);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
 }

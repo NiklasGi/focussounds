@@ -65,19 +65,23 @@ export const setVolume = (layer: Layer, volume: number) => {
     layerVolumes[layer] = volume;
 };
 
-export const setMusicTrackAsync = async (track: MusicTrack) => {
+export const setMusicTrackAsync = async (track: MusicTrack | null) => {
     ensureInitialized();
+    if (!track) {
+        stopAudioSourceForLayer(SoundCategory.Music);
+        return;
+    }
     const url = getSoundUrl(track);
     const buffer = await loadBuffer(url);
     if (buffer.length === 0) return;
     switchAudioBufferForCategory(track.category, buffer);
+    if (isPlaying) startAudioSourceForLayer(track.category);
 }
 
 const switchAudioBufferForCategory = (layer: SoundCategory, audioBuffer: AudioBuffer) => {
     ensureInitialized();
     stopAudioSourceForLayer(layer);
     audioBuffers[layer] = audioBuffer;
-    if (isPlaying) startAudioSourceForLayer(layer);
 }
 
 export const stopAudioSourceForLayer = (layer: SoundCategory) => {
@@ -93,6 +97,7 @@ export const stopAudioSourceForLayer = (layer: SoundCategory) => {
 };
 
 export const stopAllAudioLayers = () => {
+    console.log("Stopping all audio layers");
     ensureInitialized();
     for (const layer of Object.keys(audioSources) as SoundCategory[]) {
         stopAudioSourceForLayer(layer);
@@ -100,6 +105,8 @@ export const stopAllAudioLayers = () => {
 };
 
 export const startAllAudioLayers = () => {
+    console.log("Starting all audio layers");
+    console.log("Audio buffers:", audioBuffers);
     ensureInitialized();
     for (const layer of Object.keys(audioSources) as SoundCategory[]) {
         startAudioSourceForLayer(layer);
@@ -144,3 +151,12 @@ const loadBuffer = async (url: string): Promise<AudioBuffer> => {
     audioBufferPromisesCache.set(url, fetchPromise);
     return fetchPromise;
 };
+
+export const setIsPlaying = (playing: boolean) => {
+    isPlaying = playing;
+    if (isPlaying) {
+        startAllAudioLayers();
+    } else {
+        stopAllAudioLayers();
+    }
+}; 
