@@ -1,5 +1,6 @@
 import { SoundCategory } from "@/shared/types/soundCategory";
 import type { MusicTrack } from "@/shared/types/musicTrack";
+import { BinauralBeat } from "@/shared/types/binauralBeat";
 
 
 type Layer = SoundCategory | "master";
@@ -29,6 +30,7 @@ const audioBuffers: Record<SoundCategory, AudioBuffer | null> = {
     [SoundCategory.WhiteNoise]: null,
     [SoundCategory.BinauralBeats]: null,
 };
+let binauralOscillators: OscillatorNode[] | null = null;
 const ensureInitialized = () => {
     if (audioContext && gains) {
         if (audioContext.state === "suspended") void audioContext.resume();
@@ -65,18 +67,6 @@ export const setVolume = (layer: Layer, volume: number) => {
     layerVolumes[layer] = volume;
 };
 
-export const setMusicTrackAsync = async (track: MusicTrack | null) => {
-    ensureInitialized();
-    if (!track) {
-        stopAudioSourceForLayer(SoundCategory.Music);
-        return;
-    }
-    const url = getSoundUrl(track);
-    const buffer = await loadBuffer(url);
-    if (buffer.length === 0) return;
-    switchAudioBufferForCategory(track.category, buffer);
-    if (isPlaying) startAudioSourceForLayer(track.category);
-}
 
 const switchAudioBufferForCategory = (layer: SoundCategory, audioBuffer: AudioBuffer) => {
     ensureInitialized();
@@ -159,4 +149,59 @@ export const setIsPlaying = (playing: boolean) => {
     } else {
         stopAllAudioLayers();
     }
-}; 
+};
+
+
+//Music -------------------------------------------------------------------------------------------------
+
+export const setMusicTrackAsync = async (track: MusicTrack | null) => {
+    ensureInitialized();
+    if (!track) {
+        stopAudioSourceForLayer(SoundCategory.Music);
+        return;
+    }
+    const url = getSoundUrl(track);
+    const buffer = await loadBuffer(url);
+    if (buffer.length === 0) return;
+    switchAudioBufferForCategory(track.category, buffer);
+    if (isPlaying) startAudioSourceForLayer(track.category);
+}
+
+//Binaural -------------------------------------------------------------------------------------------------
+
+export const setBinauralBeatAsync = async (track: BinauralBeat | null) => {
+    const context = ensureInitialized();
+    console.log("Setting binaural beat:", track);
+    if (!track) {
+        console.log("Stopping binaural beat");
+        binauralOscillators?.map((osc) => {
+            try {
+                osc.stop();
+            } catch (e) { }
+            osc.disconnect();
+        });
+        binauralOscillators = null;
+        return;
+    }
+
+    const getOscillator = (frequency: number, side: "left" | "right"): OscillatorNode => {
+        const osc = context.createOscillator();
+        osc.type = "sine";
+        osc.frequency.value = frequency;
+        const pan = context.createStereoPanner();
+        pan.pan.value = side === "left" ? -1 : 1;
+        osc.connect(pan);
+        return osc;
+    }
+
+    const oscL = getOscillator(track.carrier, "left");
+    const oscR = getOscillator(track.carrier + track.delta, "right");
+    oscL.connect(gains![SoundCategory.BinauralBeats]);
+    oscR.connect(gains![SoundCategory.BinauralBeats]);
+    oscL.start();
+    oscR.start();
+    binauralOscillators = [oscL, oscR];
+    // switchAudioBufferForCategory(track.category);
+    if (isPlaying) startAudioSourceForLayer(track.category);
+}
+

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { setMusicTrackAsync, setIsPlaying } from "./audioEngine";
+import { setMusicTrackAsync, setBinauralBeatAsync, setIsPlaying } from "./audioEngine";
 import { useAudioState } from "./providers/audioStateProvider";
 
 export const useAudioController = () => {
@@ -19,9 +19,18 @@ export const useAudioController = () => {
             { fireImmediately: true }
         );
 
+        const unsubBinaural= useAudioState.subscribe(
+            (state) => state.binauralBeat,
+            (binauralBeat) => {
+                setBinauralBeatAsync(binauralBeat);
+            },
+            { fireImmediately: true }
+        );
+
         return () => {
             unsubPlaying();
             unsubMusic();
+            unsubBinaural();
         };
     }, []);
 };

@@ -3,5 +3,6 @@ import { SoundCategory } from "./soundCategory";
 
 export interface BinauralBeat extends Sound {
     category: SoundCategory.BinauralBeats;
-    frequency: number;
+    carrier: number;
+    delta: number;
 }
