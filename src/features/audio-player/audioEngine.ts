@@ -1,6 +1,7 @@
 import { SoundCategory } from "@/shared/types/soundCategory";
 import type { MusicTrack } from "@/shared/types/musicTrack";
 import { BinauralBeat } from "@/shared/types/binauralBeat";
+import { WhiteNoise } from "@/shared/types/whitenoise";
 
 
 type Layer = SoundCategory | "master";
@@ -118,7 +119,7 @@ export const startAudioSourceForLayer = (layer: SoundCategory) => {
     newSource.start();
 };
 
-const getSoundUrl = (sound: MusicTrack) => {
+const getSoundUrl = (sound: MusicTrack | WhiteNoise) => {
     return `/sounds/${sound.category}/${sound.id}`;
 };
 
@@ -169,6 +170,21 @@ export const setMusicTrackAsync = async (track: MusicTrack | null) => {
     if (buffer.length === 0) return;
     switchAudioBufferForCategory(track.category, buffer);
     if (isPlaying) startAudioSourceForLayer(track.category);
+}
+
+//Music -------------------------------------------------------------------------------------------------
+
+export const setWhitenoiseAsync = async (whitenoise: WhiteNoise | null) => {
+    ensureInitialized();
+    if (!whitenoise) {
+        stopAudioSourceForLayer(SoundCategory.WhiteNoise);
+        return;
+    }
+    const url = getSoundUrl(whitenoise);
+    const buffer = await loadBuffer(url);
+    if (buffer.length === 0) return;
+    switchAudioBufferForCategory(whitenoise.category, buffer);
+    if (isPlaying) startAudioSourceForLayer(whitenoise.category);
 }
 
 //Binaural -------------------------------------------------------------------------------------------------

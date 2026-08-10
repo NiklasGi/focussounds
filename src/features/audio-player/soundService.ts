@@ -33,13 +33,18 @@ export const getBinauralBeats = (): BinauralBeat[] => {
 export const getWhiteNoise = (): WhiteNoise[] => {
     const whiteNoises: WhiteNoise[] = [
         {
-            id: "whitenoise1",
-            title: "White Noise 1",
+            id: "gentle-rain.wav",
+            title: "Gentle Rain",
             category: SoundCategory.WhiteNoise,
         },
         {
-            id: "whitenoise2",
-            title: "White Noise 2",
+            id: "fireplace.wav",
+            title: "Fireplace",
+            category: SoundCategory.WhiteNoise,
+        },
+        {
+            id: "thunder.wav",
+            title: "Thunder",
             category: SoundCategory.WhiteNoise,
         }
     ];
