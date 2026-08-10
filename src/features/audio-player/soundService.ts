@@ -63,6 +63,21 @@ export const getMusicTracks = (): MusicTrack[] => {
             title: "Piano 2",
             category: SoundCategory.Music,
         },
+        {
+            id: "drifting-through-fog.mp3",
+            title: "LoFi 1",
+            category: SoundCategory.Music,
+        },
+        {
+            id: "dusk-between-stoops.mp3",
+            title: "LoFi 2",
+            category: SoundCategory.Music,
+        },
+        {
+            id: "window-seat-daydream.mp3",
+            title: "LoFi 3",
+            category: SoundCategory.Music,
+        }
     ];
     return musicTracks;
 };  
