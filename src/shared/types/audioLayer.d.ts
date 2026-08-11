@@ -1,0 +1,1 @@
+type Layer = SoundCategory | "master";

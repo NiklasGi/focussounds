@@ -3,9 +3,6 @@ import type { MusicTrack } from "@/shared/types/musicTrack";
 import { BinauralBeat } from "@/shared/types/binauralBeat";
 import { WhiteNoise } from "@/shared/types/whitenoise";
 
-
-type Layer = SoundCategory | "master";
-
 let isPlaying = false;
 //These need to be nullable because the AudioContext is not available on the server side
 let audioContext: AudioContext | null;
@@ -71,6 +68,11 @@ export const setVolume = (layer: Layer, volume: number) => {
     gains[layer].gain.value = volume;
     layerVolumes[layer] = volume;
 };
+
+export const setMasterVolume = (volume: number) => {
+    setVolume("master", volume);
+};
+
 
 
 const switchAudioBufferForCategory = (layer: SoundCategory, audioBuffer: AudioBuffer) => {
@@ -224,4 +226,3 @@ export const setBinauralBeatAsync = async (track: BinauralBeat | null) => {
     // switchAudioBufferForCategory(track.category);
     if (isPlaying) startAudioSourceForLayer(track.category);
 }
-

@@ -3,37 +3,44 @@
 import { Slider } from "@/components/ui/slider"
 import { useState } from "react";
 import { VolumeIcon, Volume1Icon, Volume2Icon, VolumeOff } from "lucide-react"
+import { setMasterVolume } from "../audioEngine";
+import { useAudioState } from "../providers/audioStateProvider";
 
-interface VolumeSliderProps {
-    value?: number;
-    onChange?: (value: number) => void;
+interface LayerVolumeSliderProps {
+    layer: Layer;
 }
 
-export function VolumeSlider({ value: defaultValue = 50, onChange }: VolumeSliderProps) {
-    const [value, setValue] = useState(defaultValue)
-    const [previousValue, setPreviousValue] = useState(defaultValue)
-
+export function LayerVolumeSlider({ layer}: LayerVolumeSliderProps) {
+    const value = useAudioState(state => state.volumes[layer] * 100);
+    const [previousValue, setPreviousValue] = useState(value);
+    
     const onValueChange = (newValues: number | readonly number[]) => {
         const val = Array.isArray(newValues) ? newValues[0] : newValues;
         
         if (val === 0) {
             if (value !== 0) setPreviousValue(value);
-            setValue(0);
         } else {
-            setValue(val);
+            if (value === 0) setPreviousValue(50);
         }
-        onChange?.(val);
+        updateState(val);
     }
+
+    const updateState = (newValue: number) => {
+        useAudioState.setState((state) => ({
+            volumes: {
+                ...state.volumes,
+                [layer]: newValue / 100,
+            },
+        }));
+    };
 
     const onIconClick = () => {
         if (value === 0) {
             const restoreValue = previousValue === 0 ? 50 : previousValue;
-            setValue(restoreValue);
-            onChange?.(restoreValue);
+            updateState(restoreValue);
         } else {
             setPreviousValue(value);
-            setValue(0);
-            onChange?.(0);
+            updateState(0);
         }
     }
     
@@ -56,4 +63,4 @@ export function VolumeSlider({ value: defaultValue = 50, onChange }: VolumeSlide
         </div>
     )
 }
-export default VolumeSlider
+export default LayerVolumeSlider

@@ -1,5 +1,5 @@
 "use client";
-import { PlayIcon, SquareIcon } from "lucide-react"
+import { PauseIcon, PlayIcon } from "lucide-react"
 import { useAudioState } from "../providers/audioStateProvider";
 import { Button } from "@/components/ui/button"
 
@@ -10,12 +10,12 @@ const PlayButton = () => {
   };
 
   return (
-    <Button className="rounded-full" onClick={onClick}>
-        {isPlaying ? (
-            <SquareIcon className="h-4 w-4" />
-        ) : (
-            <PlayIcon className="h-4 w-4" />
-        )}
+    <Button size="icon" variant="outline" onClick={onClick}>
+      {isPlaying ? (
+        <PauseIcon className="h-4 w-4" />
+      ) : (
+        <PlayIcon className="h-4 w-4" />
+      )}
     </Button>
   );
 };

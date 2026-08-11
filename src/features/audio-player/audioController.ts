@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { setMusicTrackAsync, setBinauralBeatAsync, setIsPlaying, setWhitenoiseAsync as setWhiteNoiseAsync } from "./audioEngine";
+import { setMusicTrackAsync, setBinauralBeatAsync, setIsPlaying, setWhitenoiseAsync as setWhiteNoiseAsync, setVolume } from "./audioEngine";
 import { useAudioState } from "./providers/audioStateProvider";
 
 export const useAudioController = () => {
@@ -19,7 +19,7 @@ export const useAudioController = () => {
             { fireImmediately: true }
         );
 
-        const unsubBinaural= useAudioState.subscribe(
+        const unsubBinaural = useAudioState.subscribe(
             (state) => state.binauralBeat,
             (binauralBeat) => {
                 setBinauralBeatAsync(binauralBeat);
@@ -35,11 +35,26 @@ export const useAudioController = () => {
             { fireImmediately: true }
         );
 
+        const unsubVolumes = useAudioState.subscribe(
+            (state) => state.volumes,
+            (volumes, preVolumes) => {
+                if (preVolumes) {
+                    Object.entries(volumes).forEach(([layer, volume]) => {
+                        if (preVolumes[layer] !== volume) {
+                            setVolume(layer as Layer, volume);
+                        }
+                    });
+                }
+            },
+            { fireImmediately: true }
+        );
+
         return () => {
             unsubPlaying();
             unsubMusic();
             unsubBinaural();
             unsubWhiteNoise();
+            unsubVolumes();
         };
     }, []);
 };

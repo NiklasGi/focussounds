@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
-import { Sound } from "@/shared/types/sound";
 import { MusicTrack } from "@/shared/types/musicTrack";
 import { BinauralBeat } from "@/shared/types/binauralBeat";
 import { WhiteNoise } from "@/shared/types/whitenoise";
@@ -10,6 +9,7 @@ interface AudioState {
     musicTrack: MusicTrack | null;
     binauralBeat: BinauralBeat | null;
     whitenoise: WhiteNoise | null;
+    volumes: Record<Layer, number>;
     togglePlaying: () => void;
     setMusicTrack: (sound: MusicTrack | null) => void;
     setBinauralBeat: (sound: BinauralBeat | null) => void;
@@ -25,6 +25,12 @@ export const useAudioState = create<AudioState>()(
                     musicTrack: null,
                     binauralBeat: null,
                     whitenoise: null,
+                    volumes: {
+                        master: 0.5,
+                        music: 0.5,
+                        whitenoise: 0.5,
+                        binauralbeats: 0.1,
+                    },
                     togglePlaying: () => {
                         set((state) => ({ isPlaying: !state.isPlaying }));
                     },
