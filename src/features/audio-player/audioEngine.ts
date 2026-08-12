@@ -94,20 +94,21 @@ export const stopAudioSourceForLayer = (layer: SoundCategory) => {
 };
 
 export const stopAllAudioLayers = () => {
-    console.log("Stopping all audio layers");
     ensureInitialized();
     for (const layer of Object.keys(audioSources) as SoundCategory[]) {
         stopAudioSourceForLayer(layer);
     }
+    //Quickfix
+    stopBinauralBeat();
 };
 
 export const startAllAudioLayers = () => {
-    console.log("Starting all audio layers");
-    console.log("Audio buffers:", audioBuffers);
     ensureInitialized();
     for (const layer of Object.keys(audioSources) as SoundCategory[]) {
         startAudioSourceForLayer(layer);
     }
+    //Quickfix
+    startBinauralBeat();
 };
 
 export const startAudioSourceForLayer = (layer: SoundCategory) => {
@@ -220,9 +221,24 @@ export const setBinauralBeatAsync = async (track: BinauralBeat | null) => {
     const oscR = getOscillator(track.carrier + track.delta, "right");
     oscL.connect(gains![SoundCategory.BinauralBeats]);
     oscR.connect(gains![SoundCategory.BinauralBeats]);
-    oscL.start();
-    oscR.start();
     binauralOscillators = [oscL, oscR];
-    // switchAudioBufferForCategory(track.category);
-    if (isPlaying) startAudioSourceForLayer(track.category);
+
+    if (isPlaying) startBinauralBeat();
+}
+
+const startBinauralBeat = () => {
+    binauralOscillators?.map((osc) => {
+        try {
+            osc.start();
+        } catch (e) { }
+    });
+}
+
+const stopBinauralBeat = () => {
+    binauralOscillators?.map((osc) => {
+        try {
+            osc.stop();
+        } catch (e) { }
+        osc.disconnect();
+    });
 }
