@@ -49,6 +49,8 @@ export const useAudioController = () => {
             { fireImmediately: true }
         );
 
+        setIsPlaying(useAudioState.getState().isPlaying);
+
         return () => {
             unsubPlaying();
             unsubMusic();
