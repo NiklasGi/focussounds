@@ -28,7 +28,9 @@ const audioBuffers: Record<SoundCategory, AudioBuffer | null> = {
     [SoundCategory.WhiteNoise]: null,
     [SoundCategory.BinauralBeats]: null,
 };
+
 let binauralOscillators: OscillatorNode[] | null = null;
+let binauralBeat: BinauralBeat | null = null;
 const ensureInitialized = () => {
     if (audioContext && gains) {
         if (audioContext.state === "suspended") void audioContext.resume();
@@ -192,43 +194,34 @@ export const setWhitenoiseAsync = async (whitenoise: WhiteNoise | null) => {
 
 //Binaural -------------------------------------------------------------------------------------------------
 
-export const setBinauralBeatAsync = async (track: BinauralBeat | null) => {
-    const context = ensureInitialized();
-    console.log("Setting binaural beat:", track);
-    if (!track) {
-        console.log("Stopping binaural beat");
-        binauralOscillators?.map((osc) => {
-            try {
-                osc.stop();
-            } catch (e) { }
-            osc.disconnect();
-        });
-        binauralOscillators = null;
-        return;
-    }
-
-    const getOscillator = (frequency: number, side: "left" | "right"): OscillatorNode => {
-        const osc = context.createOscillator();
-        osc.type = "sine";
-        osc.frequency.value = frequency;
-        const pan = context.createStereoPanner();
-        pan.pan.value = side === "left" ? -1 : 1;
-        osc.connect(pan);
-        return osc;
-    }
-
-    const oscL = getOscillator(track.carrier, "left");
-    const oscR = getOscillator(track.carrier + track.delta, "right");
-    oscL.connect(gains![SoundCategory.BinauralBeats]);
-    oscR.connect(gains![SoundCategory.BinauralBeats]);
-    binauralOscillators = [oscL, oscR];
-
+export const setBinauralBeatAsync = async (newBinauralBeat: BinauralBeat | null) => {
+    stopBinauralBeat();
+    if (!newBinauralBeat) return;
+    binauralBeat = newBinauralBeat;
     if (isPlaying) startBinauralBeat();
 }
 
+const getOscillator = (frequency: number, side: "left" | "right"): OscillatorNode => {
+    const context = ensureInitialized();
+
+    const osc = context.createOscillator();
+    osc.type = "sine";
+    osc.frequency.value = frequency;
+    const pan = context.createStereoPanner();
+    pan.pan.value = side === "left" ? -1 : 1;
+    osc.connect(pan);
+    return osc;
+}
+
 const startBinauralBeat = () => {
+    if (!binauralBeat) return;
+
+    const oscL = getOscillator(binauralBeat.carrier, "left");
+    const oscR = getOscillator(binauralBeat.carrier + binauralBeat.delta, "right");
+    binauralOscillators = [oscL, oscR];
     binauralOscillators?.map((osc) => {
         try {
+            osc.connect(gains![SoundCategory.BinauralBeats]);
             osc.start();
         } catch (e) { }
     });
@@ -239,6 +232,6 @@ const stopBinauralBeat = () => {
         try {
             osc.stop();
         } catch (e) { }
-        osc.disconnect();
     });
+    binauralOscillators = null;
 }
